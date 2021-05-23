@@ -233,7 +233,7 @@ class BaseModel(nn.Module):
             total_loss_epoch = 0
             train_result = {}
             try:
-                with tqdm(enumerate(train_loader), disable=verbose != 1) as t:
+                with tqdm(enumerate(train_loader), total=steps_per_epoch, disable=verbose != 1) as t:
                     for _, (x_train, y_train) in t:
                         x = x_train.to(self.device).float()
                         y = y_train.to(self.device).float()
@@ -255,9 +255,11 @@ class BaseModel(nn.Module):
                             for name, metric_fun in self.metrics.items():
                                 if name not in train_result:
                                     train_result[name] = []
-                                train_result[name].append(metric_fun(
-                                    y.cpu().data.numpy(), y_pred.cpu().data.numpy().astype("float64")))
-
+                                try:
+                                    train_result[name].append(metric_fun(
+                                        y.cpu().data.numpy(), y_pred.cpu().data.numpy().astype("float64")))
+                                except:
+                                    train_result[name].append(-1)
 
             except KeyboardInterrupt:
                 t.close()
