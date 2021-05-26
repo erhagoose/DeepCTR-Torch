@@ -91,11 +91,13 @@ class Linear(nn.Module):
 
 class BaseModel(nn.Module):
     def __init__(self, linear_feature_columns, dnn_feature_columns,
-                 l2_reg_linear=1e-5, l2_reg_embedding=1e-5, l1_reg_embedding=0,
+                 l2_reg_linear=1e-5, l2_reg_embedding=1e-5,
+                 l1_reg_linear=0, l1_reg_embedding=0,
                  init_std=0.0001, seed=1024, task='binary', device='cpu', gpus=None):
 
         super(BaseModel, self).__init__()
         torch.manual_seed(seed)
+        self.linear_feature_columns = linear_feature_columns
         self.dnn_feature_columns = dnn_feature_columns
 
         self.reg_loss = torch.zeros((1,), device=device)
@@ -108,7 +110,6 @@ class BaseModel(nn.Module):
 
         self.feature_index = build_input_features(
             linear_feature_columns + dnn_feature_columns)
-        self.dnn_feature_columns = dnn_feature_columns
 
         self.embedding_dict = create_embedding_matrix(dnn_feature_columns, init_std, sparse=False, device=device)
         #         nn.ModuleDict(
@@ -121,9 +122,14 @@ class BaseModel(nn.Module):
 
         self.regularization_weight = []
 
-        self.add_regularization_weight(self.embedding_dict.parameters(), l2=l2_reg_embedding)
-        self.add_regularization_weight(self.linear_model.parameters(), l2=l2_reg_linear)
-        self.add_regularization_weight(self.embedding_dict.parameters(), l1=l1_reg_embedding)
+        if l2_reg_embedding > 0:
+            self.add_regularization_weight(self.embedding_dict.parameters(), l2=l2_reg_embedding)
+        if l2_reg_linear > 0:
+            self.add_regularization_weight(self.linear_model.parameters(), l2=l2_reg_linear)
+        if l1_reg_embedding > 0:
+            self.add_regularization_weight(self.embedding_dict.parameters(), l1=l1_reg_embedding)
+        if l1_reg_linear > 0:
+            self.add_regularization_weight(self.linear_model.parameters(), l1=l1_reg_linear)
 
         self.out = PredictionLayer(task, )
         self.to(device)
