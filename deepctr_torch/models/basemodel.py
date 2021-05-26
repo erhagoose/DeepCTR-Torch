@@ -90,7 +90,8 @@ class Linear(nn.Module):
 
 
 class BaseModel(nn.Module):
-    def __init__(self, linear_feature_columns, dnn_feature_columns, l2_reg_linear=1e-5, l2_reg_embedding=1e-5,
+    def __init__(self, linear_feature_columns, dnn_feature_columns,
+                 l2_reg_linear=1e-5, l2_reg_embedding=1e-5, l1_reg_embedding=0,
                  init_std=0.0001, seed=1024, task='binary', device='cpu', gpus=None):
 
         super(BaseModel, self).__init__()
@@ -122,6 +123,7 @@ class BaseModel(nn.Module):
 
         self.add_regularization_weight(self.embedding_dict.parameters(), l2=l2_reg_embedding)
         self.add_regularization_weight(self.linear_model.parameters(), l2=l2_reg_linear)
+        self.add_regularization_weight(self.embedding_dict.parameters(), l1=l1_reg_embedding)
 
         self.out = PredictionLayer(task, )
         self.to(device)
