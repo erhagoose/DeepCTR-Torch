@@ -16,7 +16,6 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/shenweichen/deepctr-torch",
-    download_url='https://github.com/shenweichen/deepctr-torch/tags',
     packages=setuptools.find_packages(
         exclude=["tests", "tests.models", "tests.layers"]),
     python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*",  # '>=3.4',  # 3.4.6
