@@ -93,6 +93,7 @@ class Linear(nn.Module):
 
 class BaseModel(nn.Module):
     def __init__(self, linear_feature_columns, dnn_feature_columns,
+                 all_feature_columns=None,
                  l2_reg_linear=1e-5, l2_reg_embedding=1e-5,
                  l1_reg_linear=0, l1_reg_embedding=0,
                  init_std=0.0001, seed=1024, task='binary', device='cpu', gpus=None):
@@ -110,8 +111,9 @@ class BaseModel(nn.Module):
             raise ValueError(
                 "`gpus[0]` should be the same gpu with `device`")
 
-        self.feature_index = build_input_features(
-            linear_feature_columns + dnn_feature_columns)
+        if all_feature_columns is None:
+            all_feature_columns = linear_feature_columns + dnn_feature_columns
+        self.feature_index = build_input_features(all_feature_columns)
 
         self.embedding_dict = create_embedding_matrix(dnn_feature_columns, init_std, sparse=False, device=device)
         #         nn.ModuleDict(
